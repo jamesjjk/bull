@@ -11,10 +11,6 @@ Bull Job Manager
 The fastest, more reliable redis based queue for nodejs.
 Carefully written for rock solid stability and atomicity.
 
-It uses redis for persistence, so the queue is not lost if the server goes
-down for any reason.
-
-
 
 Follow [manast](http://twitter.com/manast) for news and updates regarding this library.
 
@@ -260,7 +256,6 @@ Important Notes
 
 The queue aims for "at most once" working strategy. When a worker is processing a job, it will keep the job locked until the work is done. However, it is important that the worker does not lock the event loop too long, otherwise other workers could pick the job believing that the worker processing it has been stalled.
 
-If the process that is handling the job fails the reacquire the lock (because it hung or crashed), the job will be automatically restarted by any worker.
 
 Useful patterns
 ---------------
@@ -623,7 +618,7 @@ __Arguments__
 
 ```javascript
   grace {int} Grace period in milliseconds.
-  type {string} type of job to clean. Values are completed, waiting, active,
+  type {string} type of job to clean. Values are completed, wait, active,
   delayed, and failed. Defaults to completed.
   limit {int} maximum amount of jobs to clean per call. If not provided will clean all matching jobs.
   returns {Promise} A promise that resolves with an array of removed jobs.
@@ -637,7 +632,7 @@ The cleaner emits the `cleaned` event anytime the queue is cleaned.
   queue.on('cleaned', function (jobs, type) {});
 
   jobs {Array} An array of jobs that have been cleaned.
-  type {String} The type of job cleaned. Options are completed, waiting, active,
+  type {String} The type of job cleaned. Options are completed, wait, active,
   delayed, or failed.
 ```
 
@@ -699,6 +694,19 @@ __Arguments__
 #### Job##retry()
 
 Rerun a Job that has failed.
+
+__Arguments__
+
+```javascript
+  returns {Promise} A promise that resolves when the job is scheduled for retry.
+```
+
+---------------------------------------
+
+<a name="discard"/>
+#### Job##discard()
+
+Ensure this job is never ran again even if attemptsMade is less than `job.attempts`
 
 __Arguments__
 
